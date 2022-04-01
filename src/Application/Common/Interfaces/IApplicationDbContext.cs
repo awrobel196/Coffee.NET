@@ -10,7 +10,7 @@ namespace Application.Common.Interfaces
 {
     public interface IApplicationDbContext
     {
-        DbSet<Product> Answer { get; }
+        DbSet<Product> Product { get; }
         Task<int> SaveChangesAsync(CancellationToken cancellationToken);
     }
 }
