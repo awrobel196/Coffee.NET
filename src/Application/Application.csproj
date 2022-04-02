@@ -7,11 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MediatR" Version="10.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Domain\Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Products\Commands\DeleteProduct\" />
+    <Folder Include="Products\Commands\UpdateProduct\" />
+    <Folder Include="Products\Queries\GetProducts\" />
   </ItemGroup>
 
 </Project>
