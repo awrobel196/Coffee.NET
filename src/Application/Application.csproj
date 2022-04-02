@@ -21,7 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Products\Commands\DeleteProduct\" />
     <Folder Include="Products\Commands\UpdateProduct\" />
   </ItemGroup>
 
