@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Application.Common.Interfaces;
 using Application.Products.Commands.CreateProduct;
+using Application.Products.Commands.UpdateProduct;
 using Application.Products.Queries.GetProducts;
 using Domain.Entities;
 using FluentAssertions;
@@ -236,6 +237,83 @@ namespace WebAPI.Tests
 
             //Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+
+
+        [Fact]
+        public async Task Update_WithCorrectUpdatedProduct_ReturnOk()
+        {
+            //Arrange
+            var productId = Guid.NewGuid();
+            _context.Product.Add(new Product()
+            {
+                Id = productId,
+                Name = "Johan & Nystrm Coffe",
+                Description = "Swedish coffee",
+                Price = 40.20m,
+                Number = 4,
+                Quantity = 5
+            });
+            await _context.SaveChangesAsync(new CancellationToken());
+
+            var updatedProduct = new UpdateProductCommand()
+            {
+                Description = "English coffee",
+                Quantity = 100,
+                Id = productId
+            };
+
+            //Act
+            var response = await _client.PutAsync(ApiRoutes.Products.Update, updatedProduct.ToJsonHttpContent());
+
+            //Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+
+        [Fact]
+        public async Task Update_WithCorrectUpdatedProductWithoutNewData_ReturnOk()
+        {
+            //Arrange
+            var productId = Guid.NewGuid();
+            _context.Product.Add(new Product()
+            {
+                Id = productId,
+                Name = "Johan & Nystrm Coffe",
+                Description = "Swedish coffee",
+                Price = 40.20m,
+                Number = 4,
+                Quantity = 5
+            });
+            await _context.SaveChangesAsync(new CancellationToken());
+
+            var updatedProduct = new UpdateProductCommand()
+            {
+                Id = productId
+            };
+
+            //Act
+            var response = await _client.PutAsync(ApiRoutes.Products.Update, updatedProduct.ToJsonHttpContent());
+
+            //Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+
+        [Fact]
+        public async Task Update_WithGuidWhoNotExistInDb_ReturnNotFound()
+        {
+            //Arrange
+            var productId = Guid.NewGuid();
+
+            var updatedProduct = new UpdateProductCommand()
+            {
+                Id = productId
+            };
+
+            //Act
+            var response = await _client.PutAsync(ApiRoutes.Products.Update, updatedProduct.ToJsonHttpContent());
+
+            //Assert
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
 
     }
