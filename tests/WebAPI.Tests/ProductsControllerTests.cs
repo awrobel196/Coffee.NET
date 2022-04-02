@@ -5,8 +5,12 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using Application.Common.Interfaces;
 using Application.Products.Commands.CreateProduct;
+using Application.Products.Queries.GetProducts;
+using Domain.Entities;
 using FluentAssertions;
 using Infrastructure.Persistance;
 using Microsoft.AspNetCore.Authorization.Policy;
@@ -24,6 +28,7 @@ namespace WebAPI.Tests
     {
         private readonly HttpClient _client;
         private readonly WebApplicationFactory<Program> _factory;
+        private readonly IApplicationDbContext _context;
 
         public ProductsControllerTests()
         {
@@ -43,6 +48,10 @@ namespace WebAPI.Tests
                 });
 
             _client = _factory.CreateClient();
+
+            _context = new ApplicationDbContext(new DbContextOptionsBuilder<ApplicationDbContext>()
+                .UseInMemoryDatabase(databaseName: "CoffeMemoryDB")
+                .Options);
         }
 
 
@@ -111,7 +120,75 @@ namespace WebAPI.Tests
             //Assert
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
+
+        [Fact]
+        public async Task GetAll_WithoutParameters_ReturnOkWithProductsList()
+        {
+            //Arrange
+            _context.Product.Add(new Product()
+            {
+                Id = new Guid(),
+                Name = "Johan & Nystrm Coffe",
+                Description = "Swedish coffee",
+                Price = 40.20m,
+                Number = 4,
+                Quantity = 5
+            });
+
+            await _context.SaveChangesAsync(new CancellationToken());
+
+            //Act
+            var response = await _client.GetAsync(ApiRoutes.Products.GetAll);
+            var responseContent = JsonConvert.DeserializeObject<List<ProductDto>>(await response.Content.ReadAsStringAsync());
+
+            //Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            responseContent.Should().NotBeNullOrEmpty();
+        }
+
+        [Fact]
+        public async Task GetOneById_WithCorrectParameter_ReturnOkWithProduct()
+        {
+            //Arrange
+            var productId = new Guid("2a74faa9-91bf-4768-9f73-3e376a4c8147");
+            _context.Product.Add(new Product()
+            {
+                Id = productId,
+                Name = "Johan & Nystrm Coffe",
+                Description = "Swedish coffee",
+                Price = 40.20m,
+                Number = 4,
+                Quantity = 5
+            });
+
+            await _context.SaveChangesAsync(new CancellationToken());
+
+            //Act
+            var response = await _client.GetAsync(ApiRoutes.Products.GetById.Replace("{id}", productId.ToString()));
+            var responseContent = JsonConvert.DeserializeObject<ProductDto>(await response.Content.ReadAsStringAsync());
+
+            //Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            responseContent.Should().NotBeNull();
+        }
+
+        [Theory]
+        [InlineData("123")]
+        [InlineData("aaa-bbb-ccc")]
+        public async Task GetOneById_WithIncorrectParameter_ReturnBadRequest(string productId)
+        {
+            //Arrange
+
+            //Act
+            var response = await _client.GetAsync(ApiRoutes.Products.GetById.Replace("{id}", productId));
+            var responseContent = JsonConvert.DeserializeObject<ProductDto>(await response.Content.ReadAsStringAsync());
+
+            //Assert
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+
     }
+
 
     public class CreateProductValidatorTestsData : IEnumerable<object[]>
     {
