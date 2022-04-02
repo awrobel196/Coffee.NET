@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Application.Products.Commands.CreateProduct;
 using AutoMapper;
+using Domain.Entities;
 
 namespace Application.Common.Mappings
 {
@@ -11,7 +13,7 @@ namespace Application.Common.Mappings
     {
         public MappingProfile()
         {
-            
+            CreateMap<CreateProductCommand, Product>();
         }
     }
 }
