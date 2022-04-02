@@ -16,6 +16,7 @@ using Infrastructure.Persistance;
 using Microsoft.AspNetCore.Authorization.Policy;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using WebAPI.Contracts.V1;
@@ -73,6 +74,7 @@ namespace WebAPI.Tests
 
             //Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
+        
         }
 
         [Fact]
@@ -136,7 +138,6 @@ namespace WebAPI.Tests
             });
 
             await _context.SaveChangesAsync(new CancellationToken());
-
             //Act
             var response = await _client.GetAsync(ApiRoutes.Products.GetAll);
             var responseContent = JsonConvert.DeserializeObject<List<ProductDto>>(await response.Content.ReadAsStringAsync());
@@ -181,10 +182,60 @@ namespace WebAPI.Tests
 
             //Act
             var response = await _client.GetAsync(ApiRoutes.Products.GetById.Replace("{id}", productId));
-            var responseContent = JsonConvert.DeserializeObject<ProductDto>(await response.Content.ReadAsStringAsync());
 
             //Assert
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+
+        [Theory]
+        [InlineData("123")]
+        [InlineData("aaa-bbb-ccc")]
+        public async Task Delete_WithIncorrectParameter_ReturnBadRequest(string productId)
+        {
+            //Arrange
+
+            //Act
+            var response = await _client.DeleteAsync(ApiRoutes.Products.Delete.Replace("{id}", productId));
+
+            //Assert
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+
+        [Fact]
+        public async Task Delete_WithGuidWhoNotExistInDb_ReturnNotFound()
+        {
+            //Arrange
+            var productId = Guid.NewGuid();
+
+            //Act
+            var response = await _client.DeleteAsync(ApiRoutes.Products.Delete.Replace("{id}", productId.ToString()));
+
+            //Assert
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
+
+
+        [Fact]
+        public async Task Delete_WithCorrectParameter_ReturnOk()
+        {
+            //Arrange
+            var productId = Guid.NewGuid();
+            _context.Product.Add(new Product()
+            {
+                Id = productId,
+                Name = "Johan & Nystrm Coffe",
+                Description = "Swedish coffee",
+                Price = 40.20m,
+                Number = 4,
+                Quantity = 5
+            });
+            await _context.SaveChangesAsync(new CancellationToken());
+
+            //Act
+            var response = await _client.DeleteAsync(ApiRoutes.Products.Delete.Replace("{id}", productId.ToString()));
+
+            //Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
         }
 
     }
