@@ -36,12 +36,13 @@ namespace Application.Products.Commands.UpdateProduct
                 return new UpdateProductHelper(HttpStatusCode.NotFound, $"Product with id {request.Id} not found");
             }
 
-            product.Quantity = request.Quantity;
-            product.Description = request.Description;
+            //If no description or quantity was specified when the product was updated, the values will not be updated
+            product.Quantity = request.Quantity ?? product.Quantity;
+            product.Description = request.Description ?? request.Description;
 
             if (await _context.SaveChangesAsync(cancellationToken) < 1)
             {
-                return new UpdateProductHelper(HttpStatusCode.InternalServerError, $"Error while save changes in database");
+                return new UpdateProductHelper(HttpStatusCode.OK, $"The given values already exist in the database. The database has not been changed");
             }
 
             return new UpdateProductHelper(HttpStatusCode.OK, $"");

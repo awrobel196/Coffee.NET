@@ -13,9 +13,10 @@ namespace Application.Common.Validation
     {
         public UpdateProductCommandValidation()
         {
-            RuleFor(x => x.Description).NotNull().NotEmpty()
-                .WithMessage("he Name cannot be null or empty")
+            RuleFor(x => x.Description)
                 .MaximumLength(200).WithMessage("The Description cannot be longer than 200 characters");
+
+            RuleFor(x => x.Id).NotNull().NotEmpty();
         }
     }
 }

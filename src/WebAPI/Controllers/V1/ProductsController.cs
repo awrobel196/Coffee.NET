@@ -1,5 +1,6 @@
 ﻿using Application.Products.Commands.CreateProduct;
 using Application.Products.Commands.DeleteProduct;
+using Application.Products.Commands.UpdateProduct;
 using Application.Products.Queries.GetProducts;
 using Microsoft.AspNetCore.Mvc;
 using WebAPI.Contracts.V1;
@@ -39,6 +40,15 @@ namespace WebAPI.Controllers.V1
             var result = await Mediator.Send(new DeleteProductCommand() {Id = id});
 
             return StatusCode((int) result.StatusCode,result.Message);
+        }
+
+        [HttpPut]
+        [Route(ApiRoutes.Products.Update)]
+        public async Task<ActionResult> Put(UpdateProductCommand product)
+        {
+            var result = await Mediator.Send(product);
+
+            return StatusCode((int)result.StatusCode, result.Message);
         }
     }
 }
