@@ -12,12 +12,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Products.Queries.GetProducts
 {
-    public class GetProductByIdQuery : IRequest<ProductDto>
+    public class GetProductByIdQuery : IRequest<ProductDto?>
     { 
-        public string Id { get; set; }
+        public Guid Id { get; set; }
     }
 
-    public class GetProductByIdQueryHandler : IRequestHandler<GetProductByIdQuery, ProductDto>
+    public class GetProductByIdQueryHandler : IRequestHandler<GetProductByIdQuery, ProductDto?>
     {
         private readonly IApplicationDbContext _context;
         private readonly IMapper _mapper;
@@ -27,19 +27,14 @@ namespace Application.Products.Queries.GetProducts
             _context = context;
             _mapper = mapper;
         }
-        public async Task<ProductDto> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
+        public async Task<ProductDto?> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
         {
+
             var entity = await _context.Product
-                .Where(x => x.Id == new Guid(request.Id))
+                .Where(x => x.Id == request.Id)
                 .SingleOrDefaultAsync(cancellationToken);
 
-            if (entity == null)
-            {
-                throw new NotFoundException(nameof(Product), request.Id);
-            }
-
-            var product = _mapper.Map<ProductDto>(entity);
-            return product;
+            return entity != null ? _mapper.Map<ProductDto>(entity) : null;
         }
     }
 }
