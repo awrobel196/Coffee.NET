@@ -1,4 +1,5 @@
 ﻿using Application.Products.Commands.CreateProduct;
+using Application.Products.Commands.DeleteProduct;
 using Application.Products.Queries.GetProducts;
 using Microsoft.AspNetCore.Mvc;
 using WebAPI.Contracts.V1;
@@ -29,6 +30,15 @@ namespace WebAPI.Controllers.V1
             var product = await Mediator.Send(new GetProductByIdQuery() {Id = id});
 
             return product != null ? Ok(product) : NotFound($"The product with the id {id} was not found");
+        }
+
+        [HttpDelete]
+        [Route(ApiRoutes.Products.Delete)]
+        public async Task<ActionResult> Delete(Guid id)
+        {
+            var result = await Mediator.Send(new DeleteProductCommand() {Id = id});
+
+            return StatusCode((int) result.StatusCode,result.Message);
         }
     }
 }
