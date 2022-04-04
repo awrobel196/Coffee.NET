@@ -42,7 +42,7 @@ namespace Application.Products.Commands.UpdateProduct
 
           
             product.Quantity = request.Quantity ?? product.Quantity;
-            product.Description = request.Description ?? request.Description;
+            product.Description = request.Description ?? product.Description;
 
             if (await _context.SaveChangesAsync(cancellationToken) < 1)
             {
