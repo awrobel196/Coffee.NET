@@ -3,6 +3,7 @@ using Application.Products.Commands.DeleteProduct;
 using Application.Products.Commands.UpdateProduct;
 using Application.Products.Queries.GetProducts;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 using WebAPI.Contracts.V1;
 
 namespace WebAPI.Controllers.V1
@@ -29,7 +30,6 @@ namespace WebAPI.Controllers.V1
         {
             
             var product = await Mediator.Send(new GetProductByIdQuery() {Id = id});
-
             return product != null ? Ok(product) : NotFound($"The product with the id {id} was not found");
         }
 

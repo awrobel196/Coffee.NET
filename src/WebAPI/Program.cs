@@ -1,8 +1,12 @@
 using Application;
 using FluentValidation.AspNetCore;
 using Infrastructure;
+using Serilog;
+using WebAPI.Installers;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.AppSerilog();
 
 var configuration = builder.Configuration;
 
