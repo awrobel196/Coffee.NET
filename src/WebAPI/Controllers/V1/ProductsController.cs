@@ -1,4 +1,5 @@
-﻿using Application.Products.Commands.CreateProduct;
+﻿using Application.Common.Validation;
+using Application.Products.Commands.CreateProduct;
 using Application.Products.Commands.DeleteProduct;
 using Application.Products.Commands.UpdateProduct;
 using Application.Products.Queries.GetProducts;
@@ -14,7 +15,10 @@ namespace WebAPI.Controllers.V1
         [Route(ApiRoutes.Products.Create)]
         public async Task<ActionResult<Guid>> GuidPost(CreateProductCommand product)
         {
-            return Ok(await Mediator.Send(product));
+            var validatedObj = product.NotNullOrEmpty(product.Description)
+                .NotNullOrEmpty(product.Name).MaxLength(product.Description,200);
+
+            return Ok(await Mediator.Send(validatedObj));
         }
 
         [HttpGet]
@@ -46,7 +50,10 @@ namespace WebAPI.Controllers.V1
         [Route(ApiRoutes.Products.Update)]
         public async Task<ActionResult> Put(UpdateProductCommand product)
         {
-            var result = await Mediator.Send(product);
+            var validatedObj = product.NotNullOrEmpty(product.Description)
+               .MaxLength(product.Description, 200);
+
+            var result = await Mediator.Send(validatedObj);
 
             return StatusCode((int)result.StatusCode, result.Message);
         }

@@ -13,15 +13,9 @@ namespace Application.Products.Commands.CreateProduct
 {
     public class CreateProductCommand : IRequest<Guid>
     {
-
-        [Required(AllowEmptyStrings = false, ErrorMessage = "Name can not be null ")]
-        [MaxLength(200, ErrorMessage = "The Name cannot be longer than 100 characters")]
         public string? Name { get; set; }
         public int? Number { get; set; }
         public int? Quantity { get; set; }
-
-        [Required(AllowEmptyStrings = false, ErrorMessage = "Description can not be null ")]
-        [MaxLength(200, ErrorMessage = "The Description cannot be longer than 200 characters")]
         public string? Description { get; set; }
         public decimal? Price { get; set; }
     }
