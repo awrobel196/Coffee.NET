@@ -17,11 +17,8 @@ namespace Application.Products.Commands.UpdateProduct
     public class UpdateProductCommand : IRequest<HttpResponseHelper>
     {
 
-        [Required(AllowEmptyStrings = false, ErrorMessage = "Id can not be null ")] 
         public Guid Id { get; set; }
         public int? Quantity { get; set; }
-        [Required(AllowEmptyStrings = false, ErrorMessage = "Description can not be null ")] 
-        [MaxLength(200,ErrorMessage = "The Description cannot be longer than 200 characters")]
         public string? Description { get; set; }
     }
 
